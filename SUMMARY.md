@@ -1,3 +1,6 @@
 # Table of contents
 
-* [Page 1](README.md)
+* [Pentest](README.md)
+  * [Buffer overflow](pentest/buffer-overflow.md)
+  * [Windows](pentest/windows.md)
+* [Various tips](various-tips.md)
