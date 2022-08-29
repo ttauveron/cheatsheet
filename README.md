@@ -158,6 +158,10 @@ jessie:$SALT$:1000:1000:jessie,,,:/home/jessie:/bin/bash
 
 ### Escape docker privileged container to be run as root
 
+{% embed url="https://thesecmaster.com/how-to-fix-cve-2022-0492-privilege-escalation-and-container-escape-vulnerabilities-in-cgroups/" %}
+
+{% embed url="https://book.hacktricks.xyz/linux-hardening/privilege-escalation/docker-breakout/docker-breakout-privilege-escalation" %}
+
 ```bash
 # Create new cgroup and namespace
 unshare -UrmC bash
