@@ -207,6 +207,33 @@ Finally, escalate privileges running
 sudo LD_PRELOAD=pe.so <COMMAND> # Use any command you can run with sudo
 ```
 
+## Cryptography
+
+Get SSL certificate from pcap
+
+```bash
+binwalk capture.pcap --dd=.*
+```
+
+Check certificate
+
+```bash
+openssl x509 -in cert.der -inform DER -text
+```
+
+Standard sizes for RSA keys :
+
+| Key size   | Key strength           |
+| ---------- | ---------------------- |
+| 512 bits   | Low-strength key       |
+| 1024 bits  | Medium-strength key    |
+| 2048  bits | High-strength key      |
+| 4096 bits  | Very high-strength key |
+
+Generate private RSA key from weak one : [https://github.com/RsaCtfTool/RsaCtfTool](https://github.com/RsaCtfTool/RsaCtfTool)
+
+
+
 ## Cracking
 
 ### John
