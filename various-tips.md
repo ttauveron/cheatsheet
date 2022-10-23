@@ -32,6 +32,12 @@ With bash, use -x to echo commands before they are executed and -n to check comm
 
 To redirect both STDOUT and STDERR to the same place, use the >& symbol. To redirect STDERR only, use 2>.
 
+#### convert binary to int&#x20;
+
+```
+echo "$((2#00011000))"
+```
+
 ## Printing
 
 The `lpr` command transmits copies of the files to the CUPS server Most changes require jobs to be identified by their job number, which you can get from `lpq`. For example, to remove a print job, just run `lprm jobid`. `lpstat -t` summarizes the print server’s overall status. telling CUPS to use a particular default for your account `lpoptions -dprinter_name`
