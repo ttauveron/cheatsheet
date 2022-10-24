@@ -2,8 +2,6 @@
 
 ## Enumeration
 
-### ****
-
 ### nmap
 
 configure firewall to return RST when TCP port scan occurs (TCP SYN is spoofed)
