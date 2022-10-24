@@ -2,17 +2,7 @@
 
 ## Enumeration
 
-### **Brute force subdomains**
-
-```bash
-gobuster vhost -u cybercrafted.thm -w ~/pentest/wordlists/shubs-subdomains.txt 
-```
-
-```bash
-wfuzz -c -f sub-fighter.txt -Z \
-    -w ~/pentest/wordlists/shubs-subdomains.txt \
-    -H "Host: FUZZ.cmess.thm" --hw 290 cmess.thm
-```
+### ****
 
 ### nmap
 
@@ -111,11 +101,29 @@ host -t mx megacorpone.com
 for ip in $(cat list.txt); do host $ip.megacorpone.com; done
 for ip in $(seq  50 100); do host 38.100.193.$ip; done | grep -v "not found"
 # DNS zone transfer
-host -l megacorpone.com ns2.megacorpone.com
+host -l DOMAIN DNS_SERVER
 dnsrecon -d megacorpone.com -t axfr
 dnsenum zonetransfer.me
 # brute force
 dnsrecon -d megacorpone.com -D ~/list.txt -t brt
+```
+
+```
+# oscp exercise, figuring out domain from private dns
+dig -x 192.168.151.149  @192.168.151.149
+dig TXT @192.168.151.149 dc.MAILMAN.com 
+```
+
+#### **Brute force subdomains**
+
+```bash
+gobuster vhost -u cybercrafted.thm -w ~/pentest/wordlists/shubs-subdomains.txt 
+```
+
+```bash
+wfuzz -c -f sub-fighter.txt -Z \
+    -w ~/pentest/wordlists/shubs-subdomains.txt \
+    -H "Host: FUZZ.cmess.thm" --hw 290 cmess.thm
 ```
 
 ## File transfer
