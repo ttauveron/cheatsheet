@@ -65,7 +65,7 @@ sqlmap -r req.txt
 
 ## Networking
 
-#### **Tunneling**
+### **Tunneling**
 
 Using socat ([static binaries](https://github.com/andrew-d/static-binaries))
 
@@ -83,9 +83,40 @@ Reverse tunnel :&#x20;
 mysql -uUSER -pPASSWORD -h 127.0.0.1 #attacker
 ```
 
-#### SIP / VoIP
+### SIP / VoIP
 
-[https://www.kali.org/tools/sipvicious/](https://www.kali.org/tools/sipvicious/)
+{% embed url="https://www.kali.org/tools/sipvicious/" %}
+
+### tcpdump
+
+Packets that have the _PSH_ and _ACK_ flags turned on.&#x20;
+
+* All packets sent and received after the initial 3-way handshake will have the _ACK_ flag set.&#x20;
+* The _PSH_ flag is used to enforce immediate delivery of a packet and is commonly used in interactive _Application Layer_ protocols to avoid buffering
+
+<figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+
+_ACK_ and _PSH_ are represented by the fourth and fifth bits of the 14th byte(\[13]), respectively
+
+Turning on only these bits would give us _00011000_, or decimal 24.
+
+```
+sudo tcpdump -A -n 'tcp[13] = 24' -r password_cracking_filtered.pcap
+```
+
+### DNS Enumeration
+
+```
+host -t mx megacorpone.com
+for ip in $(cat list.txt); do host $ip.megacorpone.com; done
+for ip in $(seq  50 100); do host 38.100.193.$ip; done | grep -v "not found"
+# DNS zone transfer
+host -l megacorpone.com ns2.megacorpone.com
+dnsrecon -d megacorpone.com -t axfr
+dnsenum zonetransfer.me
+# brute force
+dnsrecon -d megacorpone.com -D ~/list.txt -t brt
+```
 
 ## File transfer
 
