@@ -12,14 +12,17 @@ iptables -I INPUT -p tcp --dport <port> -j REJECT --reject-with tcp-reset
 
 This can make it extremely difficult (if not impossible) to get an accurate reading of the target(s).
 
-|                                        |                                    |
-| -------------------------------------- | ---------------------------------- |
-| ping sweep                             | `nmap -sn 192.168.0.1-254`         |
-| SYN scan                               | `sudo nmap -sS 192.168.0.1-254`    |
-| UDP scan                               | `nmap -sU --top-ports 20 <target>` |
-| OS fingerprinting                      | sudo nmap -O 10.11.1.220           |
-| dont ping host, avoid windows firewall | -Pn                                |
-| export all                             | nmap -oA all 192.168.0.1           |
+|                                        |                                                           |
+| -------------------------------------- | --------------------------------------------------------- |
+| ping sweep                             | `nmap -sn 192.168.0.1-254`                                |
+| SYN scan                               | `sudo nmap -sS 192.168.0.1-254`                           |
+| UDP scan                               | `nmap -sU --top-ports 20 <target>`                        |
+| OS fingerprinting                      | sudo nmap -O 10.11.1.220                                  |
+| dont ping host, avoid windows firewall | -Pn                                                       |
+| Banner grabbing                        | nmap -sV -sT 10.11.1.220                                  |
+| Service enumeration scripts            | nmap -A 10.11.1.220                                       |
+| script (dns zone transfer)             | nmap --script=dns-zone-transfer -p 53 ns2.megacorpone.com |
+| export all                             | nmap -oA all 192.168.0.1                                  |
 
 ```
 nmap -p 80 --script http-put --script-args http-put.url='/dav/shell.php',http-put.file='./shell.php'
