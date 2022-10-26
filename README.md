@@ -2,7 +2,7 @@
 
 ## Enumeration
 
-### nmap
+### Port scanning
 
 configure firewall to return RST when TCP port scan occurs (TCP SYN is spoofed)
 
@@ -30,13 +30,28 @@ nmap -p 80 --script http-put --script-args http-put.url='/dav/shell.php',http-pu
 
 https://nmap.org/nsedoc/
 
-#### Enumerate samba shares
+### SMB Enumeration
+
+* NetBIOS : TCP port 139
+* SMB : TCP port 445
+
+```
+nmap -v -p 139,445 -oG smb.txt 10.11.1.1-254
+# NetBIOS specific tool
+sudo nbtscan -r 10.11.1.0/24
+```
+
+```
+nmap -v -p 139, 445 --script=smb-os-discovery 10.11.1.227
+```
+
+Enumerate samba shares
 
 ```
 nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.170.159
 ```
 
-#### Enumerate nfs
+### Enumerate NFS
 
 ```
 nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.170.159
