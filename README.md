@@ -86,18 +86,118 @@ nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.170.159
 <pre><code>for ip in $(cat smb_ips.txt); do enum4linux -a $ip; done
 <strong>smbclient -U alfred -L //192.168.177.13/files</strong></code></pre>
 
-### Enumerate NFS
+### NFS Enumeration&#x20;
 
 ```
 nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.170.159
+# or nmap -p 111 --script nfs* 10.11.1.72
+nmap -sV -p 111 --script=rpcinfo 10.11.1.1-254
 ```
 
 say that `/var` has been found, we can mount it locally like that:
 
 ```
 mkdir tempnfs
-sudo mount TARGET_IP:/var tempnfs
+sudo mount -o nolock TARGET_IP:/var tempnfs
 ```
+
+If permission denied for some files, create user with the same UUID
+
+```
+sudo adduser pwn # (uuid = 1001)
+sudo sed -i -e 's/1001/1014/g' /etc/passwd
+```
+
+### SMTP Enumeration&#x20;
+
+* _VRFY_ request asks the server to verify an email address
+* _EXPN_ asks the server for the membership of a mailing list.
+
+verify existing users on a mail server
+
+```python
+#!/usr/bin/python
+import socket
+import sys
+if len(sys.argv) != 2:
+        print "Usage: vrfy.py <username>"
+        sys.exit(0)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+connect = s.connect(('10.11.1.217',25))
+banner = s.recv(1024)
+print banner
+# VRFY a user
+s.send('VRFY ' + sys.argv[1] + '\r\n')
+result = s.recv(1024)
+print result
+s.close()
+```
+
+### SNMP Enumeration
+
+Simple Network Management Protocol, based on UDP, IP spoofing and replay attacks\
+The SNMP MIB Tree (Management Information Base, database containing information usually related to network management)
+
+Windows SNMP MIB values
+
+| 1.3.6.1.2.1.25.1.6.0   | System Processes |
+| ---------------------- | ---------------- |
+| 1.3.6.1.2.1.25.4.2.1.2 | Running Programs |
+| 1.3.6.1.2.1.25.4.2.1.4 | Processes Path   |
+| 1.3.6.1.2.1.25.2.3.1.4 | Storage Units    |
+| 1.3.6.1.2.1.25.6.3.1.2 | Software Name    |
+| 1.3.6.1.4.1.77.1.2.25  | User Accounts    |
+| 1.3.6.1.2.1.6.13.1.3   | TCP Local Ports  |
+
+```
+sudo nmap -sU --open -p 161 10.11.1.1-254 -oG open-snmp.txt
+```
+
+brute force
+
+```
+echo public > community
+echo private >> community
+echo manager >> community
+for ip in $(seq 1 254); do echo 10.11.1.$ip; done > ips
+onesixtyone -c community -i ips
+```
+
+#### Windows SNMP Enumeration Example
+
+provided we at least know the SNMP read-only community string, which in most cases is "public".
+
+Enumerating the Entire MIB Tree
+
+```
+snmpwalk -c public -v1 -t 10 10.11.1.14
+```
+
+Enumerating Windows Users
+
+```
+snmpwalk -c public -v1 10.11.1.14 1.3.6.1.4.1.77.1.2.25
+```
+
+Enumerating Running Windows Processes
+
+```
+snmpwalk -c public -v1 10.11.1.73 1.3.6.1.2.1.25.4.2.1.2
+```
+
+Enumerating Open TCP Ports
+
+```
+snmpwalk -c public -v1 10.11.1.14 1.3.6.1.2.1.6.13.1.3
+```
+
+Enumerating Installed Software
+
+```
+snmpwalk -c public -v1 10.11.1.50 1.3.6.1.2.1.25.6.3.1.2
+```
+
+
 
 ### **sqlmap**
 
