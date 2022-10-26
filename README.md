@@ -83,6 +83,9 @@ Enumerate samba shares
 nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.170.159
 ```
 
+<pre><code>for ip in $(cat smb_ips.txt); do enum4linux -a $ip; done
+<strong>smbclient -U alfred -L //192.168.177.13/files</strong></code></pre>
+
 ### Enumerate NFS
 
 ```
