@@ -197,7 +197,19 @@ Enumerating Installed Software
 snmpwalk -c public -v1 10.11.1.50 1.3.6.1.2.1.25.6.3.1.2
 ```
 
+### Dirb
 
+```shell
+# -r to scan non-recursively
+# -z 10 to add a 10 millisecond delay to each request
+dirb http://www.megacorpone.com -r -z 10
+```
+
+### Nikto
+
+```
+nikto -host=http://www.megacorpone.com -maxtime=30s
+```
 
 ### **sqlmap**
 
