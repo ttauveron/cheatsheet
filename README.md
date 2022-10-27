@@ -1,5 +1,19 @@
 # Pentest
 
+## Practical Tools
+
+### File transfer
+
+Sending a file through netcat
+
+```bash
+# Receiver
+nc -l -p 1234 > out.file
+
+# Sender
+nc -w 3 [destination] 1234 < out.file
+```
+
 ## Enumeration
 
 ### DNS Enumeration
@@ -311,19 +325,6 @@ Turning on only these bits would give us _00011000_, or decimal 24.
 
 ```
 sudo tcpdump -A -n 'tcp[13] = 24' -r password_cracking_filtered.pcap
-```
-
-## File transfer
-
-Sending a file through netcat
-
-```bash
-# Receiver
-nc -l -p 1234 > out.file
-
-# Sender
-nc -w 3 [destination] 1234 < out.file
-
 ```
 
 ## Reverse shell
