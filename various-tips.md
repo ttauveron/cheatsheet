@@ -1,5 +1,11 @@
 # Various tips
 
+## SSH
+
+```
+env TERM="xterm-256color" ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" student@192.168.50.52 -p 2222
+```
+
 ## Vim
 
 #### How to convert the ^M linebreak to 'normal' linebreak in vim
