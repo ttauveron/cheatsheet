@@ -381,6 +381,65 @@ msfvenom : generate reverse shell #todo
 
 ## Privilege escalation
 
+### Manual enumeration
+
+```
+C:\Users\student>whoami
+C:\Users\student>net user student
+C:\Users\student>net user
+C:\Users\student>hostname
+C:\Users\student>systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
+# processes and services
+C:\Users\student>tasklist /SVC
+C:\Users\student>ipconfig /all
+C:\Users\student>route print
+C:\Users\student>netstat -ano
+C:\Users\student>netsh advfirewall show currentprofile
+C:\Users\student>netsh advfirewall firewall show rule name=all
+c:\Users\student>schtasks /query /fo LIST /v
+# Enumerating Installed Applications and Patch Levels
+c:\Users\student>wmic product get name, version, vendor
+c:\Users\student>wmic qfe get Caption, Description, HotFixID, InstalledOn
+# Enumerating Readable/Writable Files and Directories
+c:\Tools\privilege_escalation\SysinternalsSuite>accesschk.exe -uws "Everyone" "C:\Program Files"
+PS C:\Tools\privilege_escalation\SysinternalsSuite>Get-ChildItem "C:\Program Files" -Recurse | Get-ACL | ?{$_.AccessToString -match "Everyone\sAllow\s\sModify"}
+c:\Users\student>mountvol
+
+# Enumerating Device Drivers and Kernel Modules
+PS C:\Users\student> driverquery.exe /v /fo csv | ConvertFrom-CSV | Select-Object ‘Display Name’, ‘Start Mode’, Path
+PS C:\Users\student> Get-WmiObject Win32_PnPSignedDriver | Select-Object DeviceName, DriverVersion, Manufacturer | Where-Object {$_.DeviceName -like "*VMware*"}
+
+# Enumerating Binaries That AutoElevate
+c:\Users\student>reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer
+c:\Users\student>reg query HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Installer
+
+```
+
+
+
+```
+student@debian:~$ cat /etc/issue
+student@debian:~$ cat /etc/*-release
+student@debian:~$ uname -a
+student@debian:~$ ip a
+student@debian:~$ /sbin/route
+student@debian:~$ ss -anp
+student@debian:~$ ls -lah /etc/cron*
+student@debian:~$ cat /etc/crontab
+student@debian:~$ dpkg -l
+student@debian:~$ find / -writable -type d 2>/dev/null
+student@debian:~$ cat /etc/fstab 
+student@debian:~$ mount
+student@debian:~$ /bin/lsblk
+# enumerate the loaded kernel modules
+student@debian:~$ lsmod
+student@debian:~$ /sbin/modinfo libata
+student@debian:~$ find / -perm -u=s -type f 2>/dev/null
+```
+
+\
+
+
 ### SUID
 
 #### Find suid
@@ -533,3 +592,8 @@ Alternative to `cat` :&#x20;
 cp FILE /dev/stdout
 ```
 
+## Antivirus evasion
+
+Check binary against multiple antivirus : [https://www.virustotal.com/gui/home/upload](https://www.virustotal.com/gui/home/upload)
+
+Craft payload : [https://github.com/Veil-Framework/Veil](https://github.com/Veil-Framework/Veil)
