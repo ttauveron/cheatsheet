@@ -383,6 +383,8 @@ msfvenom : generate reverse shell #todo
 
 ### Manual enumeration
 
+windows
+
 ```
 C:\Users\student>whoami
 C:\Users\student>net user student
@@ -404,18 +406,15 @@ c:\Users\student>wmic qfe get Caption, Description, HotFixID, InstalledOn
 c:\Tools\privilege_escalation\SysinternalsSuite>accesschk.exe -uws "Everyone" "C:\Program Files"
 PS C:\Tools\privilege_escalation\SysinternalsSuite>Get-ChildItem "C:\Program Files" -Recurse | Get-ACL | ?{$_.AccessToString -match "Everyone\sAllow\s\sModify"}
 c:\Users\student>mountvol
-
 # Enumerating Device Drivers and Kernel Modules
 PS C:\Users\student> driverquery.exe /v /fo csv | ConvertFrom-CSV | Select-Object ‘Display Name’, ‘Start Mode’, Path
 PS C:\Users\student> Get-WmiObject Win32_PnPSignedDriver | Select-Object DeviceName, DriverVersion, Manufacturer | Where-Object {$_.DeviceName -like "*VMware*"}
-
 # Enumerating Binaries That AutoElevate
 c:\Users\student>reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer
 c:\Users\student>reg query HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Installer
-
 ```
 
-
+linux
 
 ```
 student@debian:~$ cat /etc/issue
@@ -437,8 +436,25 @@ student@debian:~$ /sbin/modinfo libata
 student@debian:~$ find / -perm -u=s -type f 2>/dev/null
 ```
 
-\
+### User Account Control (UAC)
 
+Check our integrity level
+
+```
+C:\Windows\system32> whoami /groups
+```
+
+In order to change the admin user's password, we must switch to a high integrity level even if we are logged in with an administrative user. In our example, one way to do this is through powershell.exe with the _Start-Process_ cmdlet specifying the "Run as administrator" option:
+
+```
+C:\Users\admin>powershell.exe Start-Process cmd.exe -Verb runAs
+```
+
+Change user password on windows:
+
+```
+C:\Windows\system32> net user admin my_new_password
+```
 
 ### SUID
 
