@@ -286,6 +286,21 @@ sqlmap -u http://10.11.0.22/debug.php?id=1 -p "id" --dbms=mysql --os-shell
 * _Reflected XSS attacks_: the payload in a crafted request or link --> attacks the person submitting the request or viewing the link
 * _DOM-based XSS attacks:_ similar to the other two, solely within the page's DOM
 
+## Active Directory Attacks
+
+### Active Directory Enumeration
+
+#### Traditional Approach
+
+```
+C:\Users\Offsec.corp> net user /domain
+C:\Users\Offsec.corp> net user jeff_admin /domain
+C:\Users\Offsec.corp> net group /domain
+```
+
+\
+
+
 ## Networking
 
 ### **Tunneling**
