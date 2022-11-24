@@ -661,6 +661,45 @@ Standard sizes for RSA keys :
 
 Generate private RSA key from weak one : [https://github.com/RsaCtfTool/RsaCtfTool](https://github.com/RsaCtfTool/RsaCtfTool)
 
+## Port Redirection and Tunneling
+
+### RINETD
+
+```
+kali@kali:~$ sudo apt update && sudo apt install rinetd
+```
+
+```
+kali@kali:~$ cat /etc/rinetd.conf
+...
+# forwarding rules come here
+#
+# you may specify allow and deny rules after a specific forwarding rule
+# to apply to only that forwarding rule
+#
+# bindadress    bindport  connectaddress  connectport
+0.0.0.0 80 216.58.207.142 80
+...
+```
+
+### SSH Dynamic Port Forwarding
+
+```
+kali@kali:~$ sudo ssh -N -D 127.0.0.1:8080 student@10.11.0.128
+kali@kali:~$ cat /etc/proxychains.conf
+...
+
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks4 	127.0.0.1 8080 
+kali@kali:~$ sudo proxychains nmap --top-ports=20 -sT -Pn 192.168.1.110
+```
+
+\
+
+
 ## Password Attacks
 
 For example, the following command scrapes the www.megacorpone.com web site, locates words with a minimum of six characters (-m 6), and writes (-w) the wordlist to a custom file (megacorp-cewl.txt):
