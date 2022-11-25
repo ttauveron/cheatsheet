@@ -298,6 +298,133 @@ C:\Users\Offsec.corp> net user jeff_admin /domain
 C:\Users\Offsec.corp> net group /domain
 ```
 
+#### A Modern Approach
+
+```
+PS C:\Users\offsec.CORP> [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+
+
+Forest                  : corp.com
+DomainControllers       : {DC01.corp.com}
+Children                : {}
+DomainMode              : Unknown
+DomainModeLevel         : 7
+Parent                  : 
+PdcRoleOwner            : DC01.corp.com
+RidRoleOwner            : DC01.corp.com
+InfrastructureRoleOwner : DC01.corp.com
+Name                    : corp.com
+```
+
+```powershell
+$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+$PDC = ($domainObj.PdcRoleOwner).Name
+$SearchString = "LDAP://"
+$SearchString += $PDC + "/"
+$DistinguishedName = "DC=$($domainObj.Name.Replace('.', ',DC='))"
+$SearchString += $DistinguishedName 
+# LDAP://DC01.corp.com/DC=corp,DC=com
+
+$Searcher = New-Object System.DirectoryServices.DirectorySearcher([ADSI]$SearchString)
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry($SearchString, "corp.com\offsec", "lab")
+$Searcher.SearchRoot = $objDomain
+
+$Searcher.filter="samAccountType=805306368"
+# $Searcher.filter="name=Jeff_Admin"
+$Result = $Searcher.FindAll()
+
+Foreach($obj in $Result)
+{
+    Foreach($prop in $obj.Properties)
+    {
+        $prop
+    }
+    
+    Write-Host "------------------------"
+}
+```
+
+#### Resolving Nested Groups
+
+```powershell
+$Searcher.filter="(objectClass=Group)"
+$Result = $Searcher.FindAll()
+Foreach($obj in $Result)
+{
+    $obj.Properties.name
+}
+# ...
+# Key Admins
+# Enterprise Key Admins
+# DnsAdmins
+# DnsUpdateProxy
+# Secret_Group
+# Nested_Group
+# Another_Nested_Group
+...
+
+$Searcher.filter="(name=Secret_Group)"
+$Result = $Searcher.FindAll()
+Foreach($obj in $Result)
+{
+    $obj.Properties.member
+}
+```
+
+#### Currently Logged on Users
+
+```
+PS C:\Tools\active_directory> Import-Module .\PowerView.ps1
+```
+
+Enumerate logged-in users with Get-NetLoggedon (-ComputerName = target workstation or server)
+
+```
+PS C:\Tools\active_directory> Get-NetLoggedon -ComputerName client251
+```
+
+retrieve active sessions on the domain controller DC01
+
+```
+PS C:\Tools\active_directory> Get-NetSession -ComputerName dc01
+```
+
+#### Enumeration Through Service Principal Names
+
+```powershell
+$Searcher.filter="serviceprincipalname=*http*"
+$Result = $Searcher.FindAll()
+Foreach($obj in $Result)
+{
+    Foreach($prop in $obj.Properties)
+    {
+        $prop
+    }
+}
+# ...
+# samaccountname          {iis_service}  
+# ...
+# serviceprincipalname    {HTTP/CorpWebServer.corp.com} 
+# ...
+```
+
+```
+PS C:\Users\offsec.CORP> nslookup CorpWebServer.corp.com
+Server:  UnKnown
+Address:  192.168.1.110
+
+Name:    corpwebserver.corp.com
+Address:  192.168.1.110
+```
+
+### Active Directory Authentication
+
+\
+\
+\
+
+
+\
 \
 
 
