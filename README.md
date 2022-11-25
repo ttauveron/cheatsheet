@@ -459,7 +459,7 @@ Packets that have the _PSH_ and _ACK_ flags turned on.&#x20;
 * All packets sent and received after the initial 3-way handshake will have the _ACK_ flag set.&#x20;
 * The _PSH_ flag is used to enforce immediate delivery of a packet and is commonly used in interactive _Application Layer_ protocols to avoid buffering
 
-<figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
 
 _ACK_ and _PSH_ are represented by the fourth and fifth bits of the 14th byte(\[13]), respectively
 
