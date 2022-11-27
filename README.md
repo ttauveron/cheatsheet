@@ -649,6 +649,8 @@ Microsoft Windows [Version 10.0.16299.309]
 C:\Windows\system32>
 ```
 
+{% embed url="https://cesidt.medium.com/pass-the-hash-techniques-92e46f28af89" %}
+
 #### Overpass the Hash
 
 ```
