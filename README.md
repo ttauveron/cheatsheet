@@ -14,6 +14,11 @@ nc -l -p 1234 > out.file
 nc -w 3 [destination] 1234 < out.file
 ```
 
+ftp
+
+<pre><code>sudo pip3 install pyftpdlib
+<strong>sudo python3 -m pyftpdlib -w -p 21</strong></code></pre>
+
 ## Enumeration
 
 ### DNS Enumeration
