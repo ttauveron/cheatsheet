@@ -649,6 +649,11 @@ Microsoft Windows [Version 10.0.16299.309]
 C:\Windows\system32>
 ```
 
+```
+xfreerdp [/d:domain] /u:<username> /p:<password> /v:<IP>
+xfreerdp [/d:domain] /u:<username> /pth:<hash> /v:<IP> #Pass the hash
+```
+
 {% embed url="https://cesidt.medium.com/pass-the-hash-techniques-92e46f28af89" %}
 
 #### Overpass the Hash
