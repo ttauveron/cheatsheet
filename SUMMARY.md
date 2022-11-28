@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Pentest](README.md)
+  * [Metasploit](pentest/metasploit.md)
   * [Kerberos Authentication](pentest/kerberos-authentication.md)
   * [Buffer overflow](pentest/buffer-overflow.md)
   * [Windows](pentest/windows.md)
