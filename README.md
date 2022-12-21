@@ -1134,6 +1134,12 @@ Supplemental Credentials:
 
 ## Networking
 
+### Machines enumeration
+
+```
+arp -a
+```
+
 ### **Tunneling**
 
 Using socat ([static binaries](https://github.com/andrew-d/static-binaries))
