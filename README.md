@@ -361,6 +361,18 @@ nikto -host=http://www.megacorpone.com -maxtime=30s
 
 ## Web application
 
+### MySQL
+
+```
+mysql -uUSERNAME -pPASSWD --host=127.0.0.1 --port=13306
+SHOW Grants;
+show variables;
+
+show databases;
+use db
+show tables;
+```
+
 ### Web Servers
 
 ```
