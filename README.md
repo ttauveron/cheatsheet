@@ -827,6 +827,14 @@ xfreerdp /clipboard /async-update /async-input /auto-reconnect /audio-mode:1 -gl
 
 {% embed url="https://cesidt.medium.com/pass-the-hash-techniques-92e46f28af89" %}
 
+#### open a session on another machine
+
+```powershell
+$dcsesh = New-PSSession -Computer SANDBOXDC
+Invoke-Command -Session $dcsesh -ScriptBlock {ipconfig}
+Copy-Item "C:\Users\Public\whoami.exe" -Destination "C:\Users\Public\" -ToSession $dcsesh
+```
+
 #### Overpass the Hash
 
 ```
