@@ -147,6 +147,15 @@ if __name__ == '__main__':
 
 </details>
 
+#### smb server
+
+{% embed url="https://github.com/fortra/impacket" %}
+
+```
+# from the examples directory, virtualenv, run as root
+python smbserver.py -smb2support share_name /mnt/files/
+```
+
 ## Enumeration
 
 ### Manual Ping Windows
