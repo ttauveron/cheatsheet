@@ -224,6 +224,17 @@ nmap -p 80 --script http-put --script-args http-put.url='/dav/shell.php',http-pu
 
 https://nmap.org/nsedoc/
 
+#### static nmap
+
+{% embed url="https://github.com/opsec-infosec/nmap-static-binaries/releases" %}
+
+download release, extract on system
+
+```
+export NMAPDIR=/home/j0hn/1/data/
+./nmap -sS -sC -Pn -p 3389 -T4 -iL targets.txt -vv
+```
+
 ### SMB Enumeration
 
 * NetBIOS : TCP port 139
