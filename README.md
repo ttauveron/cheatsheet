@@ -1331,6 +1331,7 @@ C:\Users\student>net user
 C:\Users\student>hostname
 C:\Users\student>systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"
 # processes and services
+PS Get-WmiObject win32_service | Select-Object Name, State, PathName | Where-Object {$_.State -like 'Running'}
 C:\Users\student>tasklist /SVC
 C:\Users\student>ipconfig /all
 C:\Users\student>route print
