@@ -1354,6 +1354,11 @@ c:\Users\student>reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows
 c:\Users\student>reg query HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Installer
 ```
 
+```
+# restart windows
+shutdown /r /t 0
+```
+
 linux
 
 ```
